@@ -77,13 +77,15 @@ void f ( int n )
   x[1] = 1;
   cout << "  " << 1 << "  " << x[1] << "\n";
 
-  for ( i = 2; i <= n; i++ )
+  // for ( i = 2; i <= n; i++ ) // go out of bound
+  for (i = 2; i < n; ++i)  
   {
     x[i] = x[i-1] + x[i-2];
     cout << "  " << i << "  " << x[i] << "\n";
   }
 
-  delete [] x;
+  // delete [] x; // need to use free method
+  free(x);
 
   return;
 }
