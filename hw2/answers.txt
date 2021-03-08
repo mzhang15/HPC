@@ -1,3 +1,10 @@
+Question 1:
+test01.cpp: 
+	- for loop goes out of bound
+	- cannot use delete, should use free instead
+test02.cpp: 
+	- x[5] to x[9] are uninitialized 
+	
 Question 2:
 Machine: MacBook Pro Intel(R) Core(TM) i5-7360U CPU @ 2.30GHz
 2.1 Experiment with Different Loop Arrangements
@@ -595,4 +602,5 @@ Dimension       Time    Gflop/s       GB/s        Error
 2.4 Peak Performance
 17 Gflop/s / (4 * 2.3 Gflop/s) = 184.8%
 
-
+Question 3:
+I modified the sin_vec() function to make it have an accuracy of 12-digit.
