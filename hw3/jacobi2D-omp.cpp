@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <omp.h>
 
 using namespace std;
 
@@ -8,7 +9,7 @@ class Jacobi2D {
 public:
     Jacobi2D(int N) : N(N) {
         h = (double) 1 / (N + 1);
-        printf("h = %7.3f\n", h);
+        // printf("h = %7.3f\n", h);
     }
 
     vector<vector<double>> solution(int maxIters) {
@@ -44,6 +45,10 @@ private:
                 const vector<vector<double>>& u,
                 const vector<vector<double>>& f) {
         int r = u.size(), c = u[0].size();
+
+        #ifdef _OPENMP
+        #pragma omp parallel for
+        #endif
         for (int i = 0; i < r; ++i) {
             for (int j = 0; j < c; ++j) {
                 double up = i > 0 ? u[i - 1][j] : 0.0;
@@ -84,12 +89,14 @@ private:
 
 //     Jacobi2D solver(N);
 
+//     #ifdef _OPENMP
+//     double t_start = omp_get_wtime();
+//     #endif
 //     vector<vector<double>> u = solver.solution(maxIters);
-
-//     for (int i = 0; i < (int) u.size(); ++i) {
-//         for (int j = 0; j < (int) u[i].size(); ++j) cout << u[i][j] << ' ';
-//         cout << endl;
-//     }
+//     #ifdef _OPENMP
+//     double t_end = omp_get_wtime();
+//     printf("Time elapsed is %7.3f\n", t_end - t_start);
+//     #endif
 
 //     return 0;
 // }
