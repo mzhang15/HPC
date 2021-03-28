@@ -1,38 +1,55 @@
 #include <iostream>
 #include <vector>
+#include <math.h>
+#include "jacobi2D-omp.cpp"
 
 using namespace std;
 
 class GS2D {
 public:
     GS2D(int N) : N(N) {
-        h = 1 / (N + 1);
+        h = (double) 1 / (N + 1);
+        printf("h = %7.3f\n", h);
     }
 
     vector<vector<double>> solution(int max_iters) {
-        vector<vector<double>> u(N, vector<double>(N, 0.0));
+        vector<vector<double>> u(N, vector<double>(N, 0.0)), u_temp;
         vector<vector<double>> f(N, vector<double>(N, 1.0));
-        double res0 = computeResidual(u, f), res, tol = 1e-5;
 
-        for (int i = 0; i < maxIters; ++i) {
-            res = computeResidual(u, f);
-            printf("Norm of residual at iteration %d = %10f\n", i, res);
-            if (res / res0 <= tol) break;
+        double tol = 1e-5;
 
+        for (int i = 0; i < max_iters; ++i) {
+            u_temp = u;
             updateRed(u, f); 
             updateBlack(u, f);
+
+            if (square_loss(u, u_temp) < tol) break;
         }
 
         return u;
     }
 private:
+    double square_loss(const vector<vector<double>>& u_next,
+                       const vector<vector<double>>& u){
+        double sum = 0.0;
+        int r = u.size(), c = u[0].size();
+
+        for (int i = 0; i < r; ++i) {
+            for (int j = 0; j < c; ++j) {
+                sum += (u_next[i][j] - u[i][j]) * (u_next[i][j] - u[i][j]);
+            }
+        } 
+
+        return sqrt(sum);                      
+    }
+
     void updateRed(vector<vector<double>>& u,
                    const vector<vector<double>>& f) {
         int r = u.size(), c = u[0].size();
 
         for (int i = 0; i < r; ++i) {
             for (int j = 0; j < c; ++j) {
-                if (i + j % 2) continue; // not red point
+                if ((i + j) % 2) continue; // not red point
                 double up = i > 0 ? u[i-1][j] : 0.0;
                 double down = i < r-1 ? u[i+1][j] : 0.0;
                 double left = j > 0 ? u[i][j-1] : 0.0;
@@ -48,10 +65,42 @@ private:
 
         for (int i = 0; i < r; ++i) {
             for (int j = 0; j < c; ++j) {
-
+                if ((i + j) % 2 == 0) continue; // not black point
+                double up = i > 0 ? u[i-1][j] : 0.0;
+                double down = i < r-1 ? u[i+1][j] : 0.0;
+                double left = j > 0 ? u[i][j-1] : 0.0;
+                double right = j < c-1 ? u[i][j+1] : 0.0;
+                u[i][j] = (h*h*f[i][j] + up + left + down + right) / 4;
             }
         }
     }
     const int N;
     double h;
 };
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("usage: program name N\n");
+        exit(1);
+    }
+
+    int N = atoi(argv[1]);
+    int maxIters = 5000;
+
+    GS2D solver(N);
+    Jacobi2D jaco_solver(N);
+
+    vector<vector<double>> u = solver.solution(maxIters);
+    vector<vector<double>> u_jaco = jaco_solver.solution(maxIters);
+
+    double square_distance = 0.0;
+
+    for (int i = 0; i < (int) u.size(); ++i) {
+        for (int j = 0; j < (int) u[i].size(); ++j) 
+            square_distance += (u[i][j] - u_jaco[i][j]) * (u[i][j] - u_jaco[i][j]);
+    }
+
+    printf("L2 norm between two solutions: %10.5f\n", square_distance);
+
+    return 0;
+}

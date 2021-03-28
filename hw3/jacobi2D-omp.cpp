@@ -6,8 +6,9 @@ using namespace std;
 
 class Jacobi2D {
 public:
-    Jacobi2D(int N) : N(n) {
-        h = 1 / (N + 1);
+    Jacobi2D(int N) : N(N) {
+        h = (double) 1 / (N + 1);
+        printf("h = %7.3f\n", h);
     }
 
     vector<vector<double>> solution(int maxIters) {
@@ -18,13 +19,27 @@ public:
         u_next = u;
         for (int i = 0; i < maxIters; ++i) {
             update(u_next, u, f); 
-            if (square_loss(u_next, u) < tol) break;
+
+            // print_matrix(u_next);
+
+            if (square_loss(u_next, u) < tol) {
+                u = u_next;
+                break;
+            }
             u = u_next;
         }
 
         return u;
     }
 private:
+    void print_matrix(const vector<vector<double>>& u) {
+        int r = u.size(), c = u[0].size();
+        for (int i = 0; i < r; ++i) {
+            for (int j = 0; j < c; ++j) printf("%7.3f ", u[i][j]);
+            cout << "\n";
+        }
+    }
+
     void update(vector<vector<double>>& u_next,
                 const vector<vector<double>>& u,
                 const vector<vector<double>>& f) {
@@ -40,14 +55,14 @@ private:
         }
     }
 
-    double square_loss(const vector<vector<double>>>& u_next,
-                       const vectotr<vector<double>>& u){
+    double square_loss(const vector<vector<double>>& u_next,
+                       const vector<vector<double>>& u){
         double sum = 0.0;
         int r = u.size(), c = u[0].size();
 
         for (int i = 0; i < r; ++i) {
             for (int j = 0; j < c; ++j) {
-                sum += (u_next[i][j] - u[i][j]) * (u_next[i][j] - u[i][j])
+                sum += (u_next[i][j] - u[i][j]) * (u_next[i][j] - u[i][j]);
             }
         } 
 
@@ -58,23 +73,23 @@ private:
     double h;
 };
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        printf("usage: program name N\n");
-        exit(1);
-    }
+// int main(int argc, char *argv[]) {
+//     if (argc != 2) {
+//         printf("usage: program name N\n");
+//         exit(1);
+//     }
 
-    int N = atoi(argv[1]);
-    int maxIters = 5000;
+//     int N = atoi(argv[1]);
+//     int maxIters = 5000;
 
-    Jacobi2D solver(N);
+//     Jacobi2D solver(N);
 
-    vector<vector<double>> u = solver.solution(maxIters);
+//     vector<vector<double>> u = solver.solution(maxIters);
 
-    for (int i = 0; i < u.size(); ++i) {
-        for (int j = 0; j < u[i].size(); ++j) cout << u[i][j] << ' ';
-        cout << endl;
-    }
+//     for (int i = 0; i < (int) u.size(); ++i) {
+//         for (int j = 0; j < (int) u[i].size(); ++j) cout << u[i][j] << ' ';
+//         cout << endl;
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
