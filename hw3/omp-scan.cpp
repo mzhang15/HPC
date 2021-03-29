@@ -22,7 +22,7 @@ void scan_omp(long* prefix_sum, const long* A, long n) {
     if (tid == 0) {
       nthreads = omp_get_num_threads();
       block_len = n / nthreads;
-      printf("Number of threads = %d\n", nthreads);
+      //printf("Number of threads = %d\n", nthreads);
     }
 
     // Q: why adding a barrier here would cause compiling error?
@@ -55,7 +55,7 @@ void scan_omp(long* prefix_sum, const long* A, long n) {
     for (long i = 0; i < n; ++i) {
       prefix_sum[i] += offsets[i / block_len];
     }
-    printf("Thread %d is done!\n", tid);
+    //printf("Thread %d is done!\n", tid);
   }
 }
 
