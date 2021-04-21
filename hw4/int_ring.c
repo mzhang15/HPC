@@ -16,17 +16,24 @@ unsigned int time_int_ring(long Nrepeat, long Nsize, MPI_Comm comm, double* time
 	for (long repeat = 0; repeat < Nrepeat; ++repeat) {
 		// printf("process %d started repeat %d\n", rank, repeat);
 		MPI_Status status;
+		MPI_Request request;
 
 		switch(rank) {
 			case 0:
-				// if (repeat == 0) memcpy(msg, (char*)&sum,sizeof(unsigned int)); // put sum = 0 into msg
-				// else MPI_Recv(msg, Nsize, MPI_CHAR, 2, repeat, comm, &status);
+				// if (repeat == 0) {
+				// 	memcpy(msg, (char*)&sum,sizeof(unsigned int)); // put sum = 0 into msg
+				// 	MPI_Send(msg, Nsize, MPI_CHAR, 1, repeat, comm);
+				// } else {
+				// 	MPI_Irecv(msg, Nsize, MPI_CHAR, 2, repeat, comm, &request);
+				// 	MPI_Wait(&request, &status);
+				// }
 
-				memcpy(msg, (char*)&sum,sizeof(unsigned int)); // put sum = 0 into msg
-				// printf("process %d receives %s\n", rank, msg);	
+				memcpy(msg, (char*)&sum,sizeof(unsigned int)); // put sum = 0 into msg	
 				MPI_Send(msg, Nsize, MPI_CHAR, 1, repeat, comm);
 				printf("process %d: sum = %d, repeat = %d\n", rank, sum, repeat);
 				MPI_Recv(msg, Nsize, MPI_CHAR, 2, repeat, comm, &status);
+				sum = *(unsigned int*)(msg);
+				printf("process %d receives %d\n", rank, sum);
 				break;
 			case 1:
 				MPI_Recv(msg, Nsize, MPI_CHAR, 0, repeat, comm, &status);
