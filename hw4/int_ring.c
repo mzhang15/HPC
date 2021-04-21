@@ -14,7 +14,7 @@ unsigned int time_int_ring(long Nrepeat, long Nsize, MPI_Comm comm, double* time
 	double tt = MPI_Wtime();
 
 	for (long repeat = 0; repeat < Nrepeat; ++repeat) {
-		printf("started repeat %d\n", repeat);
+		printf("process %d started repeat %d\n", rank, repeat);
 		MPI_Status status;
 
 		switch(rank) {
@@ -22,6 +22,7 @@ unsigned int time_int_ring(long Nrepeat, long Nsize, MPI_Comm comm, double* time
 				if (repeat == 0) memcpy(msg, (char*)&sum,sizeof(unsigned int)); // put sum = 0 into msg
 				else MPI_Recv(msg, Nsize, MPI_CHAR, 2, repeat, comm, &status);
 				
+				printf("process %d receives %s\n", rank, msg);	
 				MPI_Send(msg, Nsize, MPI_CHAR, 1, repeat, comm);
 				printf("process %d: sum = %d, repeat = %d\n", rank, sum, repeat);
 				break;
@@ -29,6 +30,8 @@ unsigned int time_int_ring(long Nrepeat, long Nsize, MPI_Comm comm, double* time
 				MPI_Recv(msg, Nsize, MPI_CHAR, 0, repeat, comm, &status);
 
 				sum = *(unsigned int*)(msg);
+				printf("process %d receives %d\n", rank, sum);
+
 				sum += 1;
 				memcpy(msg, (char*)&sum,sizeof(unsigned int));
 
@@ -39,6 +42,7 @@ unsigned int time_int_ring(long Nrepeat, long Nsize, MPI_Comm comm, double* time
 				MPI_Recv(msg, Nsize, MPI_CHAR, 1, repeat, comm, &status);
 
 				sum = *(unsigned int*)(msg);
+				printf("process %d receives %d\n", rank, sum);
 				sum += 2;
 				memcpy(msg, (char*)&sum,sizeof(unsigned int));
 
@@ -48,7 +52,7 @@ unsigned int time_int_ring(long Nrepeat, long Nsize, MPI_Comm comm, double* time
 			default:
 				break;
 		}
-		printf("finished repeat %d\n", repeat);
+		printf("process %d finished repeat %d\n", rank, repeat);
 	}
 
 	tt = MPI_Wtime() - tt;
