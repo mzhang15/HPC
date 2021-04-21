@@ -15,49 +15,23 @@ int time_int_ring(long Nrepeat, long Nsize, MPI_Comm comm, double* time) {
 	double tt = MPI_Wtime();
 
 	for (long repeat = 0; repeat < Nrepeat; ++repeat) {
-		printf("process %d started repeat %d\n", rank, repeat);
+		// printf("process %d started repeat %d\n", rank, repeat);
 
 		if (rank > 0) {
 			MPI_Recv(&sum, Nsize, MPI_INT, rank - 1, repeat, comm, MPI_STATUS_IGNORE);
-			printf("process %d receives %d at repeat %d\n", rank, sum, repeat);
+			// printf("process %d receives %d at repeat %d\n", rank, sum, repeat);
 			sum += rank;
 		}
 
 		MPI_Send(&sum, Nsize, MPI_INT, (rank + 1) % size, repeat, comm);
-		printf("process %d sends sum = %d at repeat %d\n", rank, sum, repeat);
+		// printf("process %d sends sum = %d at repeat %d\n", rank, sum, repeat);
 
 		if (rank == 0) {
 			MPI_Recv(&sum, Nsize, MPI_INT, size - 1, repeat, comm, MPI_STATUS_IGNORE);
-			printf("process %d receives %d at repeat %d\n", rank, sum, repeat);
+			// printf("process %d receives %d at repeat %d\n", rank, sum, repeat);
 		}
 
-		// switch(rank) {
-		// 	case 0:
-		// 		MPI_Send(&sum, Nsize, MPI_INT, 1, repeat, comm);
-		// 		printf("process %d sends sum = %d at repeat %d\n", rank, sum, repeat);
-		// 		MPI_Recv(&sum, Nsize, MPI_INT, 2, repeat, comm, MPI_STATUS_IGNORE);
-		// 		printf("process %d receives %d at repeat %d\n", rank, sum, repeat);
-		// 		break;
-		// 	case 1:
-		// 		MPI_Recv(&sum, Nsize, MPI_INT, 0, repeat, comm, MPI_STATUS_IGNORE);
-		// 		printf("process %d receives %d at repeat %d\n", rank, sum, repeat);
-
-		// 		sum += 1;
-
-		// 		MPI_Send(&sum, Nsize, MPI_INT, 2, repeat, comm);
-		// 		printf("process %d sends sum = %d at repeat %d\n", rank, sum, repeat);
-		// 		break;
-		// 	case 2:
-		// 		MPI_Recv(&sum, Nsize, MPI_INT, 1, repeat, comm, MPI_STATUS_IGNORE);
-		// 		printf("process %d receives %d at repeat %d\n", rank, sum, repeat);
-		// 		sum += 2;
-		// 		MPI_Send(&sum, Nsize, MPI_INT, 0, repeat, comm);
-		// 		printf("process %d sends sum = %d at repeat = %d\n", rank, sum, repeat);
-		// 		break;
-		// 	default:
-		// 		break;
-		// }
-		printf("process %d finished repeat %d\n", rank, repeat);
+		//printf("process %d finished repeat %d\n", rank, repeat);
 	}
 
 	tt = MPI_Wtime() - tt;
