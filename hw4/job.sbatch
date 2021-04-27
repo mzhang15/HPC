@@ -12,4 +12,4 @@
 module purge 
 module load  amber/openmpi/intel/20.06 
 
-mpirun -np 25 --oversubscribe ./int_ring 1000
+mpirun -np 25 --oversubscribe ./int_ring 100

@@ -83,6 +83,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	int Nrepeat = atoi(argv[1]);
+	int Nsize = 2000000;
 
 	int rank, size;
 	MPI_Comm comm = MPI_COMM_WORLD;
@@ -96,7 +97,7 @@ int main(int argc, char* argv[]) {
 		printf("result: %d\n", result);
 	}
 
-	time_array_ring(Nrepeat, 2000000, comm, &tt);
+	time_array_ring(Nrepeat, Nsize, comm, &tt);
 	if (rank == 0) {
 		printf("ring bandwidth: %e GB/s\n", (Nsize * Nrepeat *size)/tt/1e9);
 	}
