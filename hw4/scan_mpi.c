@@ -58,15 +58,19 @@
 //   }
 // }
 
-int main() {
+int main(int argc, char* argv[]) {
   MPI_Init(&argc, &argv);
 
   int rank, size;
 	MPI_Comm comm = MPI_COMM_WORLD;
 	MPI_Comm_rank(comm, &rank);
 	MPI_Comm_size(comm, &size);
+  if (argc < 2) {
+	  printf("usage: ./scan-mpi <N>\n");
+	  exit(1);
+  }
 
-  long N = 100000000;
+  long N = atoi(argv[1]);
   long* A;
   int elements_per_proc = N / size;
 
@@ -79,20 +83,20 @@ int main() {
     }
 
     // 2. split up vector and scatter to other processes
-    long* sub_array = malloc(elements_per_proc, sizeof(long));
+    long* sub_array = (long*) malloc(elements_per_proc * sizeof(long));
     
     MPI_Scatter(A, elements_per_proc, MPI_LONG, sub_array, 
                 elements_per_proc, MPI_LONG, 0, MPI_COMM_WORLD);
 
     // 3. local scan on each process
-    long* sub_prefix_array = malloc(elements_per_proc, sizeof(long));
+    long* sub_prefix_array = (long*) malloc(elements_per_proc * sizeof(long));
     for (int i = 0; i < elements_per_proc; ++i) {
         if (i == 0) sub_prefix_array[i] = sub_array[i];
         else sub_prefix_array[i] = sub_prefix_array[i - 1] + sub_array[i];
     }
 
     // 4. share their offset with everybody else
-    long* offsets = malloc(size, sizeof(long));
+    long* offsets = (long*) malloc(size * sizeof(long));
     MPI_Allgather(&sub_prefix_array[elements_per_proc - 1], 1, MPI_LONG, 
                   offsets, 1, MPI_LONG, MPI_COMM_WORLD);
 
